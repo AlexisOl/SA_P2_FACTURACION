@@ -1,0 +1,52 @@
+server:
+  port: 8086
+
+spring:
+  application:
+    name: mcsv-facturacion
+
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://40.233.27.238:3307/billing_db
+    username: app_user
+    password: appSa456.
+  #        #  driver-class-name: com.mysql.cj.jdbc.Driver
+  #        driver-class-name: org.mariadb.jdbc.Driver
+  #        url: jdbc:mariadb://localhost:3306/mcsv_usuarios
+  #        username: root
+  #        password: password
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    #database: mariabd
+    database-platform: org.hibernate.dialect.MariaDBDialect
+
+    #database-platform: org.hibernate.dialect.MySQL8Dialect
+  cloud:
+    aws:
+      region:
+        static: us-east-1
+      credentials:
+        access-key: ${AWS_ACCESS_S3_KEY_ID}
+        secret-key: ${AWS_SECRET_ACCESS_S3_KEY_ID}
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: mcsv-anuncios
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+
+
+#eureka:
+#  client:
+#    service-url:
+#      defaultZone: http://eureka-service:8765/
+#    register-with-eureka: true
+#    fetch-registry: true
