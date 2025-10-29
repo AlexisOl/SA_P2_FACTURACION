@@ -5,10 +5,13 @@ import com.example.comun.DTO.FacturaAnuncio.AnuncioCreadoDTO;
 import com.example.comun.DTO.FacturaAnuncio.RespuestaFacturaAnuncioCreadaDTO;
 import com.example.comun.DTO.FacturaBoleto.CobroCineDTO;
 import com.example.comun.DTO.FacturaBoleto.FacturaBoletoCreadoDTO;
+import com.example.comun.DTO.FacturaBoleto.RespuestaFacturaBoletoCreadoDTO;
 import com.example.comun.DTO.eventos.VerificarRespuestaDTO;
 import com.example.facturacion.FacturaAnuncio.Aplicacion.Ports.Input.CrearFacturaAnuncioInputPort;
 import com.example.facturacion.FacturaAnuncio.Dominio.FacturaAnuncio;
 import com.example.facturacion.FacturaBoleto.Aplicacion.Ports.input.CrearFacturaBoletoInputPort;
+import com.example.facturacion.FacturaBoleto.Aplicacion.Ports.output.CambioEstadoFacturasOutputPort;
+import com.example.facturacion.FacturaBoleto.Dominio.EstadoFacturacionBoleto;
 import com.example.facturacion.FacturaBoleto.Dominio.FacturaBoleto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
@@ -20,6 +23,7 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @AllArgsConstructor
@@ -29,6 +33,7 @@ public class KafkaFacturaBoletoAdaptador {
     private final CrearFacturaBoletoInputPort crearFacturaBoletoInputPort;
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
+    private final CambioEstadoFacturasOutputPort cambioEstadoFacturasOutputPort;
 
 
     @KafkaListener(topics = "crear-factura-boleto", groupId = "factura-group")
@@ -56,6 +61,7 @@ public class KafkaFacturaBoletoAdaptador {
             //aca enviar para quitar al usuario y agregar dinero al cine
 
             CobroCineDTO cobro = new CobroCineDTO();
+            cobro.setFactura(facturaActual.getId());
             cobro.setCosto(solicitud.getMontoTotal());
             cobro.setIdCine(solicitud.getIdCine());
             cobro.setCorrelationId(solicitud.getCorrelationId());
@@ -95,4 +101,32 @@ public class KafkaFacturaBoletoAdaptador {
 
 
     }
+
+
+    @KafkaListener(topics = "factura-actualizada", groupId = "factura-group")
+    @Transactional
+    public void manejarExitoFactura(
+            @Payload String mensaje,
+            @Header(value = KafkaHeaders.CORRELATION_ID, required = false) String correlationId
+    )   throws Exception {
+
+        RespuestaFacturaBoletoCreadoDTO solicitud = objectMapper.readValue(mensaje, RespuestaFacturaBoletoCreadoDTO.class);
+
+        this.cambioEstadoFacturasOutputPort.cambiarEstadoVenta(solicitud.getFactura(),
+                EstadoFacturacionBoleto.COMPLETADA);
+    }
+
+    @KafkaListener(topics = "factura-fallido", groupId = "factura-group")
+    @Transactional
+    public void manejarFalloFactura(
+            @Payload String mensaje,
+            @Header(value = KafkaHeaders.CORRELATION_ID, required = false) String correlationId
+    )  throws Exception {
+        RespuestaFacturaBoletoCreadoDTO solicitud = objectMapper.readValue(mensaje, RespuestaFacturaBoletoCreadoDTO.class);
+        System.out.println("enviando evento de fallido"+solicitud.getFactura());
+
+        this.cambioEstadoFacturasOutputPort.cambiarEstadoVenta(solicitud.getFactura(),
+                EstadoFacturacionBoleto.CANCELADA);
+    }
+
 }

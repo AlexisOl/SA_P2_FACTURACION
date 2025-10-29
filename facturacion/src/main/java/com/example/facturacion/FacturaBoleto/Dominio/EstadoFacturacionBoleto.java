@@ -5,5 +5,6 @@ public enum EstadoFacturacionBoleto {
     PROCESANDO,
     COMPLETADA,
     ERROR_GENERACION,
+    ANULADA,
     CANCELADA
 }
