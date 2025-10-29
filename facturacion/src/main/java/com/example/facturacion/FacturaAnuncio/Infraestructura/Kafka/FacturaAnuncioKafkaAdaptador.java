@@ -51,22 +51,21 @@ public class FacturaAnuncioKafkaAdaptador {
         respuesta.setCorrelationId(correlationId);
         // Serializar y enviar respuesta con correlationId header
         String respuestaMensaje = objectMapper.writeValueAsString(respuesta);
-        if (existe) {
-
-            Message<String> kafkaMessage = MessageBuilder
-                    .withPayload(respuestaMensaje)
-                    .setHeader(KafkaHeaders.TOPIC, "cine-actualizado")
-                    .setHeader(KafkaHeaders.CORRELATION_ID, correlationId)
-                    .build();
-            kafkaTemplate.send(kafkaMessage);
-        } else {
-            Message<String> kafkaMessage = MessageBuilder
-                    .withPayload(respuestaMensaje)
-                    .setHeader(KafkaHeaders.TOPIC, "propiedad-anuncio-fallido")
-                    .setHeader(KafkaHeaders.CORRELATION_ID, correlationId)
-                    .build();
-            kafkaTemplate.send(kafkaMessage);
-        }
+//        if (existe) {
+//            Message<String> kafkaMessage = MessageBuilder
+//                    .withPayload(respuestaMensaje)
+//                    .setHeader(KafkaHeaders.TOPIC, "cine-actualizado")
+//                    .setHeader(KafkaHeaders.CORRELATION_ID, correlationId)
+//                    .build();
+//            kafkaTemplate.send(kafkaMessage);
+//        } else {
+//            Message<String> kafkaMessage = MessageBuilder
+//                    .withPayload(respuestaMensaje)
+//                    .setHeader(KafkaHeaders.TOPIC, "propiedad-anuncio-fallido")
+//                    .setHeader(KafkaHeaders.CORRELATION_ID, correlationId)
+//                    .build();
+//            kafkaTemplate.send(kafkaMessage);
+//        }
 
 
     }
