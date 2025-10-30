@@ -4,6 +4,7 @@ package com.example.facturacion.FacturaBoleto.Infraestructura.Kafka;
 import com.example.comun.DTO.FacturaAnuncio.AnuncioCreadoDTO;
 import com.example.comun.DTO.FacturaAnuncio.RespuestaFacturaAnuncioCreadaDTO;
 import com.example.comun.DTO.FacturaBoleto.CobroCineDTO;
+import com.example.comun.DTO.FacturaBoleto.DebitoUsuario;
 import com.example.comun.DTO.FacturaBoleto.FacturaBoletoCreadoDTO;
 import com.example.comun.DTO.FacturaBoleto.RespuestaFacturaBoletoCreadoDTO;
 import com.example.comun.DTO.eventos.VerificarRespuestaDTO;
@@ -59,7 +60,7 @@ public class KafkaFacturaBoletoAdaptador {
             // Serializar y enviar respuesta con correlationId header
 
             //aca enviar para quitar al usuario y agregar dinero al cine
-
+           // agrega el cine
             CobroCineDTO cobro = new CobroCineDTO();
             cobro.setFactura(facturaActual.getId());
             cobro.setCosto(solicitud.getMontoTotal());
@@ -75,6 +76,27 @@ public class KafkaFacturaBoletoAdaptador {
                     .setHeader(KafkaHeaders.CORRELATION_ID, correlationId)
                     .build();
             kafkaTemplate.send(kafkaMessage);
+
+            // le quita al usuario
+            DebitoUsuario debito = new DebitoUsuario();
+            debito.setMotivo("Pago de boletos de cine para la funcion");
+            debito.setCorrelationId(solicitud.getCorrelationId());
+            debito.setFactura(facturaActual.getId());
+            debito.setVentaId(solicitud.getVentaId());
+            debito.setMonto(solicitud.getMontoTotal());
+            debito.setUserId(solicitud.getUsuarioId());
+
+
+            String respuestaDebito = objectMapper.writeValueAsString(debito);
+
+            Message<String> kafkaMessageDebitoUsuario = MessageBuilder
+                    .withPayload(respuestaDebito)
+                    .setHeader(KafkaHeaders.TOPIC, "debito-usuario")
+                    .setHeader(KafkaHeaders.CORRELATION_ID, correlationId)
+                    .build();
+            kafkaTemplate.send(kafkaMessageDebitoUsuario);
+
+
 
         }catch (Exception e){
             throw new RuntimeException("Error enviando evento de creación de venta", e);

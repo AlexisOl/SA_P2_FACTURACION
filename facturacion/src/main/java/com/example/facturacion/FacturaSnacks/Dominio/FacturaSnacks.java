@@ -1,6 +1,7 @@
 package com.example.facturacion.FacturaSnacks.Dominio;
 
 
+import com.example.facturacion.FacturaBoleto.Dominio.EstadoFacturacionBoleto;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,16 +13,22 @@ import java.util.UUID;
 public class FacturaSnacks {
     private UUID id;
     private UUID venta;
-    private UUID facturaBoleto;
+    private UUID usuarioId;
+    private UUID idCine;
+    private UUID ventaSnackId;
     private LocalDate fecha;
     private Double monto;
+    private EstadoFacturacionBoleto estado;
 
 
-    public FacturaSnacks(UUID id, UUID venta, UUID facturaBoleto, LocalDate fecha, Double monto) {
+    public FacturaSnacks(UUID id, UUID venta, UUID usuarioId, UUID idCine, UUID ventaSnackId,  LocalDate fecha, Double monto, EstadoFacturacionBoleto estado) {
         this.id = id;
         this.venta = venta;
-        this.facturaBoleto = facturaBoleto;
+        this.usuarioId = usuarioId;
+        this.idCine = idCine;
+        this.ventaSnackId = ventaSnackId;
         this.fecha = fecha;
         this.monto = monto;
+        this.estado = estado;
     }
 }

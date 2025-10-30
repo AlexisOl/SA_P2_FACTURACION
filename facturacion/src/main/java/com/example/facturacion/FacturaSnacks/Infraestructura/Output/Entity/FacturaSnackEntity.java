@@ -23,7 +23,11 @@ public class FacturaSnackEntity {
     @Column( nullable = true)
     private UUID venta;
     @Column( nullable = false)
-    private UUID facturaBoleto;
+    private UUID usuarioId;
+    @Column( nullable = false)
+    private UUID idCine;
+    @Column( nullable = true)
+    private UUID ventaSnackId;
     @Column(nullable = false)
     private LocalDate fecha;
     @Column( nullable = false)
