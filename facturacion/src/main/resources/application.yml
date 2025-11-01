@@ -53,11 +53,9 @@ spring:
         security.protocol: SSL
 
 
-
-
-#eureka:
-#  client:
-#    service-url:
-#      defaultZone: http://eureka-service:8765/
-#    register-with-eureka: true
-#    fetch-registry: true
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-service:8765/
+    register-with-eureka: true
+    fetch-registry: true
