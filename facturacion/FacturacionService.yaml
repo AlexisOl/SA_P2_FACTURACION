@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: facturacion-service
+spec:
+  selector:
+    app: facturacion
+  ports:
+    - port: 8086
+      targetPort: 8086
+  type: ClusterIP
