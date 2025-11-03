@@ -1,10 +1,7 @@
 package com.example.facturacion.FacturaAnuncio.Infraestructura.Output.Entity;
 
 import com.example.facturacion.FacturaAnuncio.Dominio.EstadoFacturacion;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,14 +22,18 @@ public class FacturaAnuncioEntity {
     private UUID id;
     @Column( nullable = false)
     private UUID anuncio;
-    @Column( nullable = false)
+    @Column( nullable = true)
     private UUID usuario;
     @Column( nullable = false)
     private Double monto;
     @Column(nullable = false)
     private LocalDate fecha;
     @Column(nullable = true)
+    @Enumerated(EnumType.STRING)
     private EstadoFacturacion estado;
-
+    @Column(nullable = true)
+    private String detalle;
+    @Column( nullable=true)
+    private UUID cine;
 
 }
