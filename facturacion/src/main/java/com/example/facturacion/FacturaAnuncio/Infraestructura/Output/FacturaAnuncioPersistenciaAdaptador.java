@@ -1,6 +1,7 @@
 package com.example.facturacion.FacturaAnuncio.Infraestructura.Output;
 
 import com.example.facturacion.FacturaAnuncio.Aplicacion.Ports.Output.CambioEstadoFacturasAnuncioOutputPort;
+import com.example.facturacion.FacturaAnuncio.Aplicacion.Ports.Output.CambioMonetarioFacturaAnuncioOutputPort;
 import com.example.facturacion.FacturaAnuncio.Aplicacion.Ports.Output.CrearFacturaAnuncioCineOutputPort;
 import com.example.facturacion.FacturaAnuncio.Aplicacion.Ports.Output.CrearFacturaAnuncioOutputPort;
 import com.example.facturacion.FacturaAnuncio.Dominio.EstadoFacturacion;
@@ -20,7 +21,7 @@ import java.util.UUID;
 @Transactional
 @AllArgsConstructor
 public class FacturaAnuncioPersistenciaAdaptador implements CrearFacturaAnuncioOutputPort, CrearFacturaAnuncioCineOutputPort,
-        CambioEstadoFacturasAnuncioOutputPort {
+        CambioEstadoFacturasAnuncioOutputPort , CambioMonetarioFacturaAnuncioOutputPort {
     private FacturaAnuncioRepository facturaAnuncioRepository;
     private FacturaAnuncioMapper facturaAnuncioMapper;
 
@@ -55,5 +56,14 @@ public class FacturaAnuncioPersistenciaAdaptador implements CrearFacturaAnuncioO
         if (entidad == null) return;
         entidad.setEstado(estadoVenta);
         this.facturaAnuncioRepository.save(entidad);
+    }
+
+    @Override
+    public void cambiarCantidad(UUID id, Double cantidad) {
+        FacturaAnuncioEntity entidad = this.facturaAnuncioRepository.findById(id).orElse(null);
+        if (entidad == null) return;
+        entidad.setMonto(cantidad);
+        this.facturaAnuncioRepository.save(entidad);
+
     }
 }

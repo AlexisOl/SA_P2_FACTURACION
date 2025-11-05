@@ -7,6 +7,7 @@ import com.example.comun.DTO.FacturaBoleto.RespuestaFacturaBoletoCreadoDTO;
 import com.example.facturacion.FacturaAnuncio.Aplicacion.Ports.Input.CrearFacturaAnuncioCineInputPort;
 import com.example.facturacion.FacturaAnuncio.Aplicacion.Ports.Input.CrearFacturaAnuncioInputPort;
 import com.example.facturacion.FacturaAnuncio.Aplicacion.Ports.Output.CambioEstadoFacturasAnuncioOutputPort;
+import com.example.facturacion.FacturaAnuncio.Aplicacion.Ports.Output.CambioMonetarioFacturaAnuncioOutputPort;
 import com.example.facturacion.FacturaAnuncio.Dominio.EstadoFacturacion;
 import com.example.facturacion.FacturaAnuncio.Dominio.FacturaAnuncio;
 import com.example.facturacion.FacturaBoleto.Dominio.EstadoFacturacionBoleto;
@@ -33,6 +34,7 @@ public class FacturaAnuncioKafkaAdaptador {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final CambioEstadoFacturasAnuncioOutputPort cambioEstadoFacturasAnuncioOutputPort;
     private final ObjectMapper objectMapper;
+    private final CambioMonetarioFacturaAnuncioOutputPort cambioMonetarioFacturaAnuncioOutputPort;
 
 
 
@@ -99,7 +101,7 @@ public class FacturaAnuncioKafkaAdaptador {
         RespuestaFacturaAnuncioCreadaDTO solicitud = objectMapper.readValue(mensaje, RespuestaFacturaAnuncioCreadaDTO.class);
 
         //cambio a la factura del usuario
-
+        this.cambioMonetarioFacturaAnuncioOutputPort.cambiarCantidad(solicitud.getFactura(), solicitud.getMonto());
         this.cambioEstadoFacturasAnuncioOutputPort.cambiarEstadoVenta(solicitud.getFactura(),
                 EstadoFacturacion.EXITOSA);
 
@@ -131,7 +133,7 @@ public class FacturaAnuncioKafkaAdaptador {
         RespuestaFacturaAnuncioCreadaDTO solicitud = objectMapper.readValue(mensaje, RespuestaFacturaAnuncioCreadaDTO.class);
 
         //cambio a la factura del usuario
-
+        this.cambioMonetarioFacturaAnuncioOutputPort.cambiarCantidad(solicitud.getFactura(), solicitud.getMonto());
         this.cambioEstadoFacturasAnuncioOutputPort.cambiarEstadoVenta(solicitud.getFactura(),
                 EstadoFacturacion.CANCELADA);
 
