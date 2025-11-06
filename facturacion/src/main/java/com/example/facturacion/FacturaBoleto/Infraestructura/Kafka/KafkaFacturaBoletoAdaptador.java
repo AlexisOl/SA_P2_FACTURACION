@@ -70,6 +70,9 @@ public class KafkaFacturaBoletoAdaptador {
 
             String respuestaMensaje = objectMapper.writeValueAsString(cobro);
 
+
+            System.out.println("ACREDITA AL CINE");
+
             Message<String> kafkaMessage = MessageBuilder
                     .withPayload(respuestaMensaje)
                     .setHeader(KafkaHeaders.TOPIC, "propiedad-facturacion-generada")
@@ -90,6 +93,7 @@ public class KafkaFacturaBoletoAdaptador {
 
 
             String respuestaDebito = objectMapper.writeValueAsString(debito);
+            System.out.println("DEBITA AL USUARIO");
 
             Message<String> kafkaMessageDebitoUsuario = MessageBuilder
                     .withPayload(respuestaDebito)
