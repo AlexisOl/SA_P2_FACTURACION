@@ -89,6 +89,7 @@ public class KafkaFacturaBoletoAdaptador {
             debito.setMonto(solicitud.getMontoTotal());
             debito.setUserId(solicitud.getUsuarioId());
             debito.setIdCine(solicitud.getIdCine());
+            debito.setIds(solicitud.getIds());
 
 
 
