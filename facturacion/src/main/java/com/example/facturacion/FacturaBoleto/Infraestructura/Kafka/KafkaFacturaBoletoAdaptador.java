@@ -97,10 +97,12 @@ public class KafkaFacturaBoletoAdaptador {
 
             Message<String> kafkaMessageDebitoUsuario = MessageBuilder
                     .withPayload(respuestaDebito)
-                    .setHeader(KafkaHeaders.TOPIC, "debito-usuario")
-                    .setHeader(KafkaHeaders.CORRELATION_ID, correlationId)
+                    .setHeader(KafkaHeaders.TOPIC, "debito-usuario-boleto")
+                    .setHeader(KafkaHeaders.CORRELATION_ID, solicitud.getCorrelationId())
                     .build();
             kafkaTemplate.send(kafkaMessageDebitoUsuario);
+
+            // aca ver si tiene snakcs
 
 
 

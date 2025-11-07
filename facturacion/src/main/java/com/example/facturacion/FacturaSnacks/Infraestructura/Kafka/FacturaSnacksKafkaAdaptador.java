@@ -62,13 +62,13 @@ public class FacturaSnacksKafkaAdaptador {
             cobro.setVentaId(solicitud.getVentaSnackId());
 
             String respuestaMensaje = objectMapper.writeValueAsString(cobro);
-
-            Message<String> kafkaMessage = MessageBuilder
-                    .withPayload(respuestaMensaje)
-                    .setHeader(KafkaHeaders.TOPIC, "propiedad-facturacion-generada")
-                    .setHeader(KafkaHeaders.CORRELATION_ID, correlationId)
-                    .build();
-            kafkaTemplate.send(kafkaMessage);
+//
+//            Message<String> kafkaMessage = MessageBuilder
+//                    .withPayload(respuestaMensaje)
+//                    .setHeader(KafkaHeaders.TOPIC, "propiedad-facturacion-generada")
+//                    .setHeader(KafkaHeaders.CORRELATION_ID, correlationId)
+//                    .build();
+//            kafkaTemplate.send(kafkaMessage);
 
             // le quita al usuario
             DebitoUsuario debito = new DebitoUsuario();
