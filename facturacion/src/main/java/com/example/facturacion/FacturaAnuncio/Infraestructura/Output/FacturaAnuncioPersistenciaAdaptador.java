@@ -1,9 +1,6 @@
 package com.example.facturacion.FacturaAnuncio.Infraestructura.Output;
 
-import com.example.facturacion.FacturaAnuncio.Aplicacion.Ports.Output.CambioEstadoFacturasAnuncioOutputPort;
-import com.example.facturacion.FacturaAnuncio.Aplicacion.Ports.Output.CambioMonetarioFacturaAnuncioOutputPort;
-import com.example.facturacion.FacturaAnuncio.Aplicacion.Ports.Output.CrearFacturaAnuncioCineOutputPort;
-import com.example.facturacion.FacturaAnuncio.Aplicacion.Ports.Output.CrearFacturaAnuncioOutputPort;
+import com.example.facturacion.FacturaAnuncio.Aplicacion.Ports.Output.*;
 import com.example.facturacion.FacturaAnuncio.Dominio.EstadoFacturacion;
 import com.example.facturacion.FacturaAnuncio.Dominio.FacturaAnuncio;
 import com.example.facturacion.FacturaAnuncio.Infraestructura.Output.Entity.FacturaAnuncioEntity;
@@ -21,7 +18,7 @@ import java.util.UUID;
 @Transactional
 @AllArgsConstructor
 public class FacturaAnuncioPersistenciaAdaptador implements CrearFacturaAnuncioOutputPort, CrearFacturaAnuncioCineOutputPort,
-        CambioEstadoFacturasAnuncioOutputPort , CambioMonetarioFacturaAnuncioOutputPort {
+        CambioEstadoFacturasAnuncioOutputPort , CambioMonetarioFacturaAnuncioOutputPort, ObtenerFacturaEspecificaOutputPort {
     private FacturaAnuncioRepository facturaAnuncioRepository;
     private FacturaAnuncioMapper facturaAnuncioMapper;
 
@@ -65,5 +62,12 @@ public class FacturaAnuncioPersistenciaAdaptador implements CrearFacturaAnuncioO
         entidad.setMonto(cantidad);
         this.facturaAnuncioRepository.save(entidad);
 
+    }
+
+    @Override
+    public FacturaAnuncio getFacturaAnuncioEspecifica(UUID idFactura) {
+        return this.facturaAnuncioMapper.toFacturaAnuncio(
+                this.facturaAnuncioRepository.findById(idFactura).orElse(null)
+        );
     }
 }

@@ -1,6 +1,8 @@
 package com.example.facturacion.FacturaAnuncio.Infraestructura.Kafka;
 
 
+import com.example.comun.DTO.DW.ListadoFacturadoAnuncio;
+import com.example.comun.DTO.DW.ReplicacionFacturaAnuncioDTO;
 import com.example.comun.DTO.FacturaAnuncio.*;
 import com.example.comun.DTO.FacturaBoleto.DebitoUsuario;
 import com.example.comun.DTO.FacturaBoleto.RespuestaFacturaBoletoCreadoDTO;
@@ -8,8 +10,10 @@ import com.example.facturacion.FacturaAnuncio.Aplicacion.Ports.Input.CrearFactur
 import com.example.facturacion.FacturaAnuncio.Aplicacion.Ports.Input.CrearFacturaAnuncioInputPort;
 import com.example.facturacion.FacturaAnuncio.Aplicacion.Ports.Output.CambioEstadoFacturasAnuncioOutputPort;
 import com.example.facturacion.FacturaAnuncio.Aplicacion.Ports.Output.CambioMonetarioFacturaAnuncioOutputPort;
+import com.example.facturacion.FacturaAnuncio.Aplicacion.Ports.Output.ObtenerFacturaEspecificaOutputPort;
 import com.example.facturacion.FacturaAnuncio.Dominio.EstadoFacturacion;
 import com.example.facturacion.FacturaAnuncio.Dominio.FacturaAnuncio;
+import com.example.facturacion.FacturaAnuncio.Infraestructura.Output.Mapper.FacturaAnuncioMapper;
 import com.example.facturacion.FacturaBoleto.Dominio.EstadoFacturacionBoleto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
@@ -24,6 +28,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 @AllArgsConstructor
@@ -35,6 +41,8 @@ public class FacturaAnuncioKafkaAdaptador {
     private final CambioEstadoFacturasAnuncioOutputPort cambioEstadoFacturasAnuncioOutputPort;
     private final ObjectMapper objectMapper;
     private final CambioMonetarioFacturaAnuncioOutputPort cambioMonetarioFacturaAnuncioOutputPort;
+    private final ObtenerFacturaEspecificaOutputPort obtenerFacturaEspecificaOutputPort;
+    private final FacturaAnuncioMapper facturaAnuncioMapper;
 
 
 
@@ -97,6 +105,7 @@ public class FacturaAnuncioKafkaAdaptador {
             @Payload String mensaje,
             @Header(value = KafkaHeaders.CORRELATION_ID, required = false) String correlationId
     )   throws Exception {
+        List<ReplicacionFacturaAnuncioDTO> facturacionDW = new ArrayList<>();
 
         RespuestaFacturaAnuncioCreadaDTO solicitud = objectMapper.readValue(mensaje, RespuestaFacturaAnuncioCreadaDTO.class);
 
@@ -104,6 +113,11 @@ public class FacturaAnuncioKafkaAdaptador {
         this.cambioMonetarioFacturaAnuncioOutputPort.cambiarCantidad(solicitud.getFactura(), solicitud.getMonto());
         this.cambioEstadoFacturasAnuncioOutputPort.cambiarEstadoVenta(solicitud.getFactura(),
                 EstadoFacturacion.EXITOSA);
+
+        //obtener el anuncio general
+        FacturaAnuncio facturaUsuario = this.obtenerFacturaEspecificaOutputPort.getFacturaAnuncioEspecifica(solicitud.getFactura());
+
+        facturacionDW.add(this.facturaAnuncioMapper.toReplicacionDTO(facturaUsuario));
 
         //generar ingreso de facturacion
         for (DiasDescuentoAnunciosBloqueados cines: solicitud.getDineroCines()) {
@@ -115,10 +129,24 @@ public class FacturaAnuncioKafkaAdaptador {
 
             FacturaAnuncio facturaAnuncio = this.crearFacturaAnuncioCineInputPort.crearFacturaCineAnuncio(nuevaFactura);
 
+            facturacionDW.add(this.facturaAnuncioMapper.toReplicacionDTO(facturaAnuncio));
+
+
             this.cambioEstadoFacturasAnuncioOutputPort.cambiarEstadoVenta(facturaAnuncio.getId(),
                     EstadoFacturacion.EXITOSA);
         }
 
+        // enviar el otro evento al dw
+        ListadoFacturadoAnuncio nuevoValor = new ListadoFacturadoAnuncio();
+        nuevoValor.setListado(facturacionDW);
+        String respuestaDebito = objectMapper.writeValueAsString(nuevoValor);
+
+        Message<String> kafkaMessageDebitoUsuario = MessageBuilder
+                .withPayload(respuestaDebito)
+                .setHeader(KafkaHeaders.TOPIC, "ingreso-detalle-anuncio-facturacion")
+                .setHeader(KafkaHeaders.CORRELATION_ID, correlationId)
+                .build();
+        kafkaTemplate.send(kafkaMessageDebitoUsuario);
 
     }
 
