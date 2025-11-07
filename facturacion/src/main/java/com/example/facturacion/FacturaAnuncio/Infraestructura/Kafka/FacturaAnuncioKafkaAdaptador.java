@@ -82,6 +82,8 @@ public class FacturaAnuncioKafkaAdaptador {
         System.out.println(solicitud.getFechafin());
 
 
+        System.out.println("ACAAAAAAAAAAAAAA VER ");
+
 
         String respuestaDebito = objectMapper.writeValueAsString(acreditaCine);
 
@@ -159,6 +161,7 @@ public class FacturaAnuncioKafkaAdaptador {
         //generar ingreso de facturacion
 
         RespuestaFacturaAnuncioCreadaDTO solicitud = objectMapper.readValue(mensaje, RespuestaFacturaAnuncioCreadaDTO.class);
+        System.out.println(solicitud.getFactura()+ "----------------"+solicitud.getMonto()+ "-------------"+solicitud.getMotivoFallo());
 
         //cambio a la factura del usuario
         this.cambioMonetarioFacturaAnuncioOutputPort.cambiarCantidad(solicitud.getFactura(), solicitud.getMonto());
