@@ -133,7 +133,7 @@ public class KafkaFacturaBoletoAdaptador {
     }
 
 
-    @KafkaListener(topics = "factura-actualizada", groupId = "factura-group")
+    @KafkaListener(topics = "factura-actualizada-boleto", groupId = "factura-group")
     @Transactional
     public void manejarExitoFactura(
             @Payload String mensaje,
@@ -146,7 +146,7 @@ public class KafkaFacturaBoletoAdaptador {
                 EstadoFacturacionBoleto.COMPLETADA);
     }
 
-    @KafkaListener(topics = "factura-fallido", groupId = "factura-group")
+    @KafkaListener(topics = "factura-fallido-boleto", groupId = "factura-group")
     @Transactional
     public void manejarFalloFactura(
             @Payload String mensaje,
